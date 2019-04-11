@@ -93,7 +93,7 @@ for epoch in range(num_epochs):
         # Print Log
         if (i + 1) % 100 == 0:
             print("Epoch {}/{} - Step: {}/{} - Loss: {:.4f}".format(
-                    epoch, num_epochs, i, num_steps, total_loss / (i + 1)))
+                    epoch + 1, num_epochs, i, num_steps, total_loss / (i + 1)))
 
     # ---------- VALIDATION ----------
     # set model to evaluating
@@ -119,6 +119,6 @@ for epoch in range(num_epochs):
             correct += (predicted == labels).sum().item()
             
         print("Epoch {} - Accuracy: {} - Validation Loss : {:.4f}".format(
-                epoch, 
+                epoch + 1, 
                 correct / total,
                 val_losses / (len(val_loader))))
