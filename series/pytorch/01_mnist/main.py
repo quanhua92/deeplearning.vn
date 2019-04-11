@@ -15,7 +15,7 @@ from torchvision import datasets, transforms
 
 batch_size = 32
 learning_rate = 0.01
-num_epochs = 5
+num_epochs = 20
 
 # Data Loader
 train_loader = torch.utils.data.DataLoader(
