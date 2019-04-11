@@ -27,7 +27,7 @@ train_loader = torch.utils.data.DataLoader(
         batch_size=batch_size, 
         shuffle=True)
 
-test_loader = torch.utils.data.DataLoader(
+val_loader = torch.utils.data.DataLoader(
         datasets.MNIST("data", train=False, download=True,
                        transform=transforms.Compose([
                                transforms.ToTensor(),
@@ -65,7 +65,12 @@ optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 num_steps = len(train_loader)
 
 for epoch in range(num_epochs):
+    
+    # ---------- TRAINING ----------
+    # set model to training
     model.train()    
+    
+    total_loss = 0
     
     for i, (images, labels) in enumerate(train_loader):
         images, labels = images.to(device), labels.to(device)
@@ -78,27 +83,42 @@ for epoch in range(num_epochs):
         
         # Compute Loss
         loss = criterion(outputs, labels)
-        
+
         # Backward
         loss.backward()
         optimizer.step()
-        
+
+        total_loss += loss.item()        
+                
         # Print Log
         if (i + 1) % 100 == 0:
-            print("Epoch {}/{} - Step: {}/{} - Loss: {}".format(
-                    epoch, num_epochs, i, num_steps, loss.item()))
+            print("Epoch {}/{} - Step: {}/{} - Loss: {:.4f}".format(
+                    epoch, num_epochs, i, num_steps, total_loss / (i + 1)))
 
+    # ---------- VALIDATION ----------
+    # set model to evaluating
     model.eval()
+    
+    val_losses = 0
+
     with torch.no_grad():
         correct = 0
         total = 0
-        for _, (images, labels) in enumerate(test_loader):
+        for _, (images, labels) in enumerate(val_loader):
             images, labels = images.to(device), labels.to(device)
             
             outputs = model(images)
             
             _, predicted = torch.max(outputs, 1)
             
+            loss = criterion(outputs, labels)
+            
+            val_losses += loss.item()
+            
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-        print("Epoch {} - Accuracy: {}".format(epoch, 100 * correct / total))
+            
+        print("Epoch {} - Accuracy: {} - Validation Loss : {:.4f}".format(
+                epoch, 
+                correct / total,
+                val_losses / (len(val_loader))))
